@@ -1,5 +1,5 @@
 <template>
-  <div class="col-lg-3 col-md-6 col-sm-6">
+
     <div
       class="single-service wow fadeInLeft"
       data-wow-delay=".2s"
@@ -7,18 +7,22 @@
     >
       <div
         class="service-bg bg-1 bg-cover"
-        style="
-          background-image: url(https://www.hayathmedicare.in/assets/img/service/Laboratory.jpg);
-        "
+          :style="{ backgroundImage: `url(${service.image})` }"
       ></div>
       <div class="service-content">
-        <h3>Laboratory</h3>
-        <a href="Laboratory" class="read-more">Read More</a>
+        <h3>{{ service.service_title }}</h3>
+        <NuxtLink to="{{ service.service_title }}" class="read-more">Read More</NuxtLink>
       </div>
     </div>
-  </div>
+  
 </template>
 
-<script setup></script>
+<script setup>
+const props = defineProps({
+    service: Object
+});
+</script>
 
 <style lang="scss" scoped></style>
+
+

@@ -10,6 +10,7 @@ const departments = ref(null);
 const services = ref(null);
 const doctors = ref(null);
 const news = ref(null);
+
 const errorMessage = ref("");
 
 // Fetch data and handle loading, error states, and HTTP status codes
@@ -72,11 +73,33 @@ const fetchDoctors = async () => {
     if (data.status !== "success") {
       throw new Error("Data status is not success");
     }
-
-    console.log(doctors);
   } catch (error) {
     console.error("Failed to fetch doctors:", error);
     doctors.value = { status: "error", data: [] };
+    errorMessage.value = error.message; // Set error message for display
+  }
+};
+
+const fetchServices = async () => {
+  try {
+    const response = await fetch("http://127.0.0.1:8000/api/v1/resource/services");
+
+    if (!response.ok) {
+      // Check if response status is not OK (status code 200-299)
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    services.value = data;
+
+    if (data.status !== "success") {
+      throw new Error("Data status is not success");
+    }
+
+    console.log(services);
+  } catch (error) {
+    console.error("Failed to fetch services:", error);
+    services.value = { status: "error", data: [] };
     errorMessage.value = error.message; // Set error message for display
   }
 };
@@ -85,6 +108,7 @@ const fetchDoctors = async () => {
 onMounted(fetchBanners);
 onMounted(fetchDepartments);
 onMounted(fetchDoctors);
+onMounted(fetchServices);
 </script>
 
 <template>
@@ -156,7 +180,11 @@ onMounted(fetchDoctors);
           </div>
         </div>
         <div v-if="departments && departments.status === 'success'" class="row">
-          <div v-for="(dept, index) in departments.data" :key="index" class="col-lg-3 col-md-6 col-sm-6"> 
+          <div
+            v-for="(dept, index) in departments.data"
+            :key="index"
+            class="col-lg-3 col-md-6 col-sm-6"
+          >
             <DepartmentCard :department="dept" />
           </div>
         </div>
@@ -178,7 +206,11 @@ onMounted(fetchDoctors);
           </div>
         </div>
         <div v-if="doctors && doctors.status === 'success'" class="row">
-          <div v-for="(doctor, index) in doctors.data" :key="index" class="col-lg-3 col-md-6 col-sm-6"> 
+          <div
+            v-for="(doctor, index) in doctors.data"
+            :key="index"
+            class="col-lg-3 col-md-6 col-sm-6"
+          >
             <DoctorCard :doctor="doctor" />
           </div>
         </div>
@@ -187,7 +219,6 @@ onMounted(fetchDoctors);
           <p v-if="doctors && doctors.status === 'error'">{{ errorMessage }}</p>
           <p v-else>Loading...</p>
         </div>
-    
       </div>
     </section>
     <section id="service-3" class="services-area section-padding">
@@ -204,8 +235,19 @@ onMounted(fetchDoctors);
           </div>
         </div>
 
-        <div class="row">
-          <ServiceCard />
+        <div v-if="services && services.status === 'success'" class="row">
+          <div
+            v-for="(service, index) in services.data"
+            :key="index"
+            class="col-lg-3 col-md-6 col-sm-6"
+          >
+            <ServiceCard :service="service" />
+          </div>
+        </div>
+        <div v-else>
+          <!-- Loading or Error messages -->
+          <p v-if="services && services.status === 'error'">{{ errorMessage }}</p>
+          <p v-else>Loading...</p>
         </div>
       </div>
     </section>
@@ -278,6 +320,56 @@ onMounted(fetchDoctors);
       <div class="spacer-bg sky-bg bg-cover" style="background-color: #092a46">
         <!-- <a href="" class="main-btn">Get A Quote</a> -->
       </div>
+    </section>
+    <div class="blog-area gray-bg section-padding">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-6 col-md-12 col-12">
+            <div class="section-title">
+              <h6>News</h6>
+              <h2>What <b>happen</b> inside our <b>Part</b></h2>
+            </div>
+          </div>
+
+          <div class="col-lg-6 text-right"></div>
+        </div>
+        <div class="row">
+          <div class="col-lg-4 col-md-6 col-sm-12">
+            <div
+              class="single-blog-item wow fadeInLeft"
+              data-wow-delay=".4s"
+              style="
+                visibility: visible;
+                animation-delay: 0.4s;
+                animation-name: fadeInLeft;
+              "
+            >
+              <div class="blog-bg">
+                <img src="" />
+              </div>
+              <div class="blog-content">
+                <p class="blog-meta"><i class="las la-calendar-check"></i>Aug-15</p>
+                <h5>
+                  <a href="single-view?news=57"
+                    >സ്വാതന്ത്ര്യദിന ഹെൽത്ത് ചെക്കപ്പ് പാക്കേജ്</a
+                  >
+                </h5>
+                <a href="single-view?news=57" class="read-more text-dark">Read More</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <section class="col-lg-12 mt-3">
+      <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3918.5509946420307!2d76.02970801411696!3d10.845632560879807!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ba7b73c80314e33%3A0x49cf3b197f4eaa49!2sHayath%20Medicare!5e0!3m2!1sen!2sin!4v1642097857941!5m2!1sen!2sin"
+        width="100%"
+        height="450"
+        style="border: 0"
+        loading="lazy"
+      ></iframe>
     </section>
   </div>
 </template>
