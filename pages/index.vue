@@ -1,114 +1,51 @@
-<script setup>
-import { ref, onMounted } from "vue";
-import Slider from "./components/SliderBanner.vue";
-import DepartmentCard from "./components/DepartmentCard.vue";
-import ServiceCard from "./components/ServiceCard.vue";
-import DoctorCard from "./components/DoctorCard.vue";
+<script setup>import { ref, onMounted } from 'vue';
+import Slider from './components/SliderBanner.vue';
+import DepartmentCard from './components/DepartmentCard.vue';
+import ServiceCard from './components/ServiceCard.vue';
+import DoctorCard from './components/DoctorCard.vue';
+import NewsCard from './components/NewsCard.vue';
+import YotubeVideoCard from './components/YotubeVideoCard.vue';
+import { Carousel, Slide } from 'vue3-carousel';
+import 'vue3-carousel/dist/carousel.css';
+
+// Import API functions
+import { fetchBanners, fetchDepartments, fetchDoctors, fetchServices, fetchNews, fetchYtVideos } from './services/api.js';
 
 const banners = ref(null);
 const departments = ref(null);
 const services = ref(null);
 const doctors = ref(null);
 const news = ref(null);
+const ytVideos = ref(null);
 
-const errorMessage = ref("");
+const errorMessage = ref('');
 
-// Fetch data and handle loading, error states, and HTTP status codes
-const fetchBanners = async () => {
+// Fetch data and handle loading, error states
+const fetchData = async () => {
   try {
-    const response = await fetch("http://127.0.0.1:8000/api/v1/resource/banners");
+    const [bannersData, departmentsData, doctorsData, servicesData, newsData, ytVideosData] = await Promise.all([
+      fetchBanners(),
+      fetchDepartments(),
+      fetchDoctors(),
+      fetchServices(),
+      fetchNews(),
+      fetchYtVideos(),
+    ]);
 
-    if (!response.ok) {
-      // Check if response status is not OK (status code 200-299)
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    banners.value = data;
-
-    if (data.status !== "success") {
-      throw new Error("Data status is not success");
-    }
+    banners.value = bannersData;
+    departments.value = departmentsData;
+    services.value = servicesData;
+    doctors.value = doctorsData;
+    news.value = newsData;
+    ytVideos.value = ytVideosData;
   } catch (error) {
-    console.error("Failed to fetch banners:", error);
-    banners.value = { status: "error", data: [] };
+    console.error('Failed to fetch data:', error);
     errorMessage.value = error.message; // Set error message for display
   }
 };
 
-const fetchDepartments = async () => {
-  try {
-    const response = await fetch("http://127.0.0.1:8000/api/v1/resource/departments");
-
-    if (!response.ok) {
-      // Check if response status is not OK (status code 200-299)
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    departments.value = data;
-
-    if (data.status !== "success") {
-      throw new Error("Data status is not success");
-    }
-  } catch (error) {
-    console.error("Failed to fetch departments:", error);
-    departments.value = { status: "error", data: [] };
-    errorMessage.value = error.message; // Set error message for display
-  }
-};
-
-const fetchDoctors = async () => {
-  try {
-    const response = await fetch("http://127.0.0.1:8000/api/v1/resource/doctors");
-
-    if (!response.ok) {
-      // Check if response status is not OK (status code 200-299)
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    doctors.value = data;
-
-    if (data.status !== "success") {
-      throw new Error("Data status is not success");
-    }
-  } catch (error) {
-    console.error("Failed to fetch doctors:", error);
-    doctors.value = { status: "error", data: [] };
-    errorMessage.value = error.message; // Set error message for display
-  }
-};
-
-const fetchServices = async () => {
-  try {
-    const response = await fetch("http://127.0.0.1:8000/api/v1/resource/services");
-
-    if (!response.ok) {
-      // Check if response status is not OK (status code 200-299)
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    services.value = data;
-
-    if (data.status !== "success") {
-      throw new Error("Data status is not success");
-    }
-
-    console.log(services);
-  } catch (error) {
-    console.error("Failed to fetch services:", error);
-    services.value = { status: "error", data: [] };
-    errorMessage.value = error.message; // Set error message for display
-  }
-};
-
-// Fetch banners when component is mounted
-onMounted(fetchBanners);
-onMounted(fetchDepartments);
-onMounted(fetchDoctors);
-onMounted(fetchServices);
+// Fetch data when component is mounted
+onMounted(fetchData);
 </script>
 
 <template>
@@ -206,13 +143,17 @@ onMounted(fetchServices);
           </div>
         </div>
         <div v-if="doctors && doctors.status === 'success'" class="row">
-          <div
-            v-for="(doctor, index) in doctors.data"
-            :key="index"
-            class="col-lg-3 col-md-6 col-sm-6"
+          <Carousel
+            :itemsToShow="4"
+            :itemsToScroll="1"
+            :transition="500"
+            :autoplay="2000"
+            :wrap-around="true"
           >
-            <DoctorCard :doctor="doctor" />
-          </div>
+            <Slide v-for="(doctor, index) in doctors.data" :key="index">
+              <DoctorCard :doctor="doctor" />
+            </Slide>
+          </Carousel>
         </div>
         <div v-else>
           <!-- Loading or Error messages -->
@@ -268,7 +209,7 @@ onMounted(fetchServices);
           style="visibility: visible; animation-delay: 0.2s; animation-name: fadeInUp"
         >
           <div class="row no-gutters">
-            <div class="col-lg-3 col-md-6 col-12">
+            <div class="col-lg-3 col-md-6 col-6">
               <div class="choose-us-inner">
                 <div class="choose-us-icon">
                   <img
@@ -279,7 +220,7 @@ onMounted(fetchServices);
                 <h5>Health facility</h5>
               </div>
             </div>
-            <div class="col-lg-3 col-md-6 col-12">
+            <div class="col-lg-3 col-md-6 col-6">
               <div class="choose-us-inner">
                 <div class="choose-us-icon">
                   <img
@@ -290,7 +231,7 @@ onMounted(fetchServices);
                 <h5>Qualified Doctors</h5>
               </div>
             </div>
-            <div class="col-lg-3 col-md-6 col-12">
+            <div class="col-lg-3 col-md-6 col-6">
               <div class="choose-us-inner">
                 <div class="choose-us-icon">
                   <img
@@ -301,7 +242,7 @@ onMounted(fetchServices);
                 <h5>Patient Friendly</h5>
               </div>
             </div>
-            <div class="col-lg-3 col-md-6 col-12">
+            <div class="col-lg-3 col-md-6 col-6">
               <div class="choose-us-inner">
                 <div class="choose-us-icon">
                   <img
@@ -321,6 +262,39 @@ onMounted(fetchServices);
         <!-- <a href="" class="main-btn">Get A Quote</a> -->
       </div>
     </section>
+    <div id="testimonial-2" class="testimonial-area sky-bg section-padding">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-12 text-center">
+            <div class="section-title mt-5 mb-5">
+              <h2 style="color: red">OUR VIDEOS</h2>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-12">
+          <!-- Ensure you're checking ytVideos.status, not news.status -->
+          <div v-if="ytVideos && ytVideos.status === 'success'" class="row">
+            <Carousel
+              :itemsToShow="4"
+              :itemsToScroll="1"
+              :transition="500"
+              :autoplay="2000"
+              :wrap-around="true"
+            >
+              <Slide v-for="(ytVideo, index) in ytVideos.data" :key="index">
+                <YotubeVideoCard :ytVideo="ytVideo" />
+              </Slide>
+            </Carousel>
+          </div>
+          <div v-else>
+            <!-- Loading or Error messages -->
+            <p v-if="ytVideos && ytVideos.status === 'error'">{{ errorMessage }}</p>
+            <p v-else>Loading...</p>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="blog-area gray-bg section-padding">
       <div class="container">
         <div class="row">
@@ -334,29 +308,19 @@ onMounted(fetchServices);
           <div class="col-lg-6 text-right"></div>
         </div>
         <div class="row">
-          <div class="col-lg-4 col-md-6 col-sm-12">
+          <div v-if="news && news.status === 'success'" class="row">
             <div
-              class="single-blog-item wow fadeInLeft"
-              data-wow-delay=".4s"
-              style="
-                visibility: visible;
-                animation-delay: 0.4s;
-                animation-name: fadeInLeft;
-              "
+              v-for="(news_single, index) in news.data.slice(0, 4)"
+              :key="index"
+              class="col-lg-3 col-md-6 col-sm-6"
             >
-              <div class="blog-bg">
-                <img src="" />
-              </div>
-              <div class="blog-content">
-                <p class="blog-meta"><i class="las la-calendar-check"></i>Aug-15</p>
-                <h5>
-                  <a href="single-view?news=57"
-                    >സ്വാതന്ത്ര്യദിന ഹെൽത്ത് ചെക്കപ്പ് പാക്കേജ്</a
-                  >
-                </h5>
-                <a href="single-view?news=57" class="read-more text-dark">Read More</a>
-              </div>
+              <NewsCard :news_single="news_single" />
             </div>
+          </div>
+          <div v-else>
+            <!-- Loading or Error messages -->
+            <p v-if="news && news.status === 'error'">{{ errorMessage }}</p>
+            <p v-else>Loading...</p>
           </div>
         </div>
       </div>

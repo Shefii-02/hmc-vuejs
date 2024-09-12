@@ -12,6 +12,7 @@ export default defineNuxtConfig({
     // Add your global CSS file paths here
     '@/assets/css/style.css',
   ],
+  
   app: {
     head: {
       link: [
