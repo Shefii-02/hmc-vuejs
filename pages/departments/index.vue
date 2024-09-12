@@ -31,32 +31,28 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { fetchDepartments, } from './services/api.js';
 const departments = ref(null);
-import DepartmentCard from "../components/DepartmentCard.vue";
-import BreadcroumbArea from '../components/BreadcroumbArea.vue';
-const fetchDepartments = async () => {
+const fetchData = async () => {
   try {
-    const response = await fetch("http://127.0.0.1:8000/api/v1/resource/departments");
-
-    if (!response.ok) {
-      // Check if response status is not OK (status code 200-299)
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    departments.value = data;
-
-    if (data.status !== "success") {
-      throw new Error("Data status is not success");
-    }
+    const [departmentsData] = await Promise.all([
+      fetchDepartments(),
+    ]);
+    departments.value = departmentsData;
   } catch (error) {
-    console.error("Failed to fetch departments:", error);
-    departments.value = { status: "error", data: [] };
+    console.error('Failed to fetch data:', error);
     errorMessage.value = error.message; // Set error message for display
   }
 };
-onMounted(fetchDepartments);
+
+// Fetch data when component is mounted
+onMounted(fetchData);
+
+import { ref, onMounted } from "vue";
+
+import DepartmentCard from "../components/DepartmentCard.vue";
+import BreadcroumbArea from '../components/BreadcroumbArea.vue';
+
 </script>
 
 <style lang="scss" scoped>

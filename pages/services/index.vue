@@ -31,33 +31,27 @@
 </template>
 
 <script setup>
+import { fetchServices, } from './services/api.js';
 import { ref, onMounted } from "vue";
 const services = ref(null);
 import ServiceCard from "../components/ServiceCard.vue";
 import BreadcroumbArea from '../components/BreadcroumbArea.vue';
 
-const fetchServices = async () => {
+const fetchData = async () => {
   try {
-    const response = await fetch("http://127.0.0.1:8000/api/v1/resource/services");
-
-    if (!response.ok) {
-      // Check if response status is not OK (status code 200-299)
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    services.value = data;
-
-    if (data.status !== "success") {
-      throw new Error("Data status is not success");
-    }
+    const [servicesData] = await Promise.all([
+      fetchServices(),
+    ]);
+    services.value = servicesData;
   } catch (error) {
-    console.error("Failed to fetch services:", error);
-    services.value = { status: "error", data: [] };
+    console.error('Failed to fetch data:', error);
     errorMessage.value = error.message; // Set error message for display
   }
 };
-onMounted(fetchServices);
+
+// Fetch data when component is mounted
+onMounted(fetchData);
+
 </script>
 
 <style lang="scss" scoped></style>

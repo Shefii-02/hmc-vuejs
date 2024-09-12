@@ -31,34 +31,26 @@
 </template>
 
 <script setup>
+import { fetchDoctors, } from './services/api.js';
 import { ref, onMounted } from "vue";
 const news = ref(null);
 import NewsCard from "../components/NewsCard.vue";
 import BreadcroumbArea from "../components/BreadcroumbArea.vue";
-
 const fetchNews = async () => {
   try {
-    const response = await fetch("http://127.0.0.1:8000/api/v1/resource/news-events");
-
-    if (!response.ok) {
-      // Check if response status is not OK (status code 200-299)
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    news.value = data;
-
-    if (data.status !== "success") {
-      throw new Error("Data status is not success");
-    }
+    const [newsData] = await Promise.all([
+      fetchDoctors(),
+    ]);
+    news.value = newsData;
   } catch (error) {
-    console.error("Failed to fetch news:", error);
-    news.value = { status: "error", data: [] };
+    console.error('Failed to fetch data:', error);
     errorMessage.value = error.message; // Set error message for display
   }
 };
 
+// Fetch data when component is mounted
 onMounted(fetchNews);
+
 </script>
 
 <style lang="scss" scoped></style>
