@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const baseURL = 'http://127.0.0.1:8000/api/v1/resource/';
+const baseURL = 'https://hmc-backend.vercel.app/api/api/v1/resource/';
 
 // Create an instance of Axios
 const apiClient = axios.create({
